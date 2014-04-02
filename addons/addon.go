@@ -2,6 +2,8 @@ package addons
 
 import (
 	"encoding/json"
+	"errors"
+	"github.com/robertkrimen/otto"
 	"io/ioutil"
 )
 
@@ -21,33 +23,6 @@ type Addon struct {
 	ServerScripts []*Script
 	SharedScripts []*Script
 	Resources     []*Resource
-}
-
-//Scans a directory recursively returning all paths
-func scanDir(path string) ([]string, error) {
-	dirInfo, err := ioutil.ReadDir(path)
-	if err != nil {
-		return make([]string, 0), err
-	}
-
-	out := make([]string, 0)
-	for _, v := range dirInfo {
-		completePath := path + "/" + v.Name()
-		if string(path[len(path)-1]) == "/" {
-			completePath = path + v.Name()
-		}
-		if v.IsDir() {
-			nOut, err := scanDir(completePath)
-			if err != nil {
-				return make([]string, 0), err
-			}
-			out = append(out, nOut...)
-		} else {
-			out = append(out, completePath)
-		}
-	}
-
-	return out, nil
 }
 
 func LoadAddon(path string) (*Addon, error) {
@@ -90,4 +65,50 @@ func LoadAddon(path string) (*Addon, error) {
 		SharedScripts: sharedScripts,
 		Resources:     resources,
 	}, nil
+}
+
+// Runs the shared and server scripts on the server
+func (a *Addon) Run(ottoInstance *otto.Otto) []error {
+	errs := make([]error, 0)
+	for _, serverScript := range a.ServerScripts {
+		err := serverScript.Run(ottoInstance)
+		if err != nil {
+			errs = append(errs, errors.New(serverScript.Path+":"+err.Error()))
+		}
+	}
+
+	for _, sharedScript := range a.SharedScripts {
+		err := sharedScript.Run(ottoInstance)
+		if err != nil {
+			errs = append(errs, errors.New(sharedScript.Path+":"+err.Error()))
+		}
+	}
+	return errs
+}
+
+//Scans a directory recursively returning all paths
+func scanDir(path string) ([]string, error) {
+	dirInfo, err := ioutil.ReadDir(path)
+	if err != nil {
+		return make([]string, 0), err
+	}
+
+	out := make([]string, 0)
+	for _, v := range dirInfo {
+		completePath := path + "/" + v.Name()
+		if string(path[len(path)-1]) == "/" {
+			completePath = path + v.Name()
+		}
+		if v.IsDir() {
+			nOut, err := scanDir(completePath)
+			if err != nil {
+				return make([]string, 0), err
+			}
+			out = append(out, nOut...)
+		} else {
+			out = append(out, completePath)
+		}
+	}
+
+	return out, nil
 }
