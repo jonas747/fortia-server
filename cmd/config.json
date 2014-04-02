@@ -4,6 +4,6 @@
 		"hostname": "Wild test server"
 	},
 	"addons": [
-		"testAddon"
+		"testaddon"
 	]
 }

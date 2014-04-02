@@ -28,5 +28,20 @@ func LoadConfig() {
 func main() {
 	LoadConfig()
 	log.Println(config)
-	addons.LoadAddon("addons/testaddon")
+	am, err := addons.LoadAddons(config.Addons, "addons")
+	if err != nil {
+		panic(err)
+	}
+	am.Log = new(Logger)
+	am.RunAddons()
+}
+
+type Logger struct{}
+
+func (l Logger) Info(info ...string) {
+	log.Println(info)
+}
+
+func (l Logger) Error(err ...string) {
+	log.Println("ERROR:", err)
 }
