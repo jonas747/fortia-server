@@ -33,6 +33,24 @@ func LoadScript(path string, kind ScriptType) (*Script, error) {
 	}, nil
 }
 
+func LoadScripts(path string, kind ScriptType) ([]*Script, error) {
+	paths, err := scanDir(path)
+	if err != nil {
+		return nil, err
+	}
+
+	scripts := make([]*Script, 0)
+	for _, v := range paths {
+		script, err := LoadScript(v, kind)
+		if err != nil {
+			return scripts, err
+		}
+		scripts = append(scripts, script)
+	}
+	return scripts, nil
+}
+
+// Executes the script
 func (s *Script) Run(ottoInstance *otto.Otto) error {
 	s.OttoInst = ottoInstance
 	_, err := ottoInstance.Run(string(s.Source))

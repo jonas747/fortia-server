@@ -1,13 +1,22 @@
 package addons
 
 import (
-	//"encoding/json"
+	"encoding/json"
 	"io/ioutil"
 )
 
+// Struct representing the addon.json file
+type AddonInfo struct {
+	Name    string
+	Version string
+	License string
+	Type    string
+	Author  string
+}
+
+// Struct representing an addon
 type Addon struct {
-	Path          string
-	Name          string
+	Info          AddonInfo
 	ClientScripts []*Script
 	ServerScripts []*Script
 	SharedScripts []*Script
@@ -43,28 +52,42 @@ func scanDir(path string) ([]string, error) {
 
 func LoadAddon(path string) (*Addon, error) {
 
-	// Get the locations of all the files
-	/*
-		clientScriptPaths, err := scanDir(path + "/scripts/client")
-		if err != nil {
-			return nil, err
-		}
+	file, err := ioutil.ReadFile(path + "/addon.json")
+	if err != nil {
+		return nil, err
+	}
 
-		serverScriptPaths, err := scanDir(path + "/scripts/server")
-		if err != nil {
-			return nil, err
-		}
+	var info AddonInfo
+	err = json.Unmarshal(file, &info)
+	if err != nil {
+		return nil, err
+	}
 
-		sharedScriptPaths, err := scanDir(path + "/scripts/shared")
-		if err != nil {
-			return nil, err
-		}
+	clientScripts, err := LoadScripts(path+"/scripts/client", SCRIPT_CLIENT)
+	if err != nil {
+		return nil, err
+	}
 
-		resourcePaths, err := scanDir(path + "/resources")
-		if err != nil {
-			return nil, err
-		}
-	*/
+	serverScripts, err := LoadScripts(path+"/scripts/server", SCRIPT_SERVER)
+	if err != nil {
+		return nil, err
+	}
 
-	return nil, nil
+	sharedScripts, err := LoadScripts(path+"/scripts/shared", SCRIPT_SHARED)
+	if err != nil {
+		return nil, err
+	}
+
+	resources, err := LoadResources(path + "/resources")
+	if err != nil {
+		return nil, err
+	}
+
+	return &Addon{
+		Info:          info,
+		ClientScripts: clientScripts,
+		ServerScripts: serverScripts,
+		SharedScripts: sharedScripts,
+		Resources:     resources,
+	}, nil
 }
