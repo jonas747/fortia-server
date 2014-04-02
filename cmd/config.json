@@ -1,0 +1,9 @@
+{
+	"convars": {
+		"port": "8000",
+		"hostname": "Wild test server"
+	},
+	"addons": [
+		"testAddon"
+	]
+}

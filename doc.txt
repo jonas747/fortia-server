@@ -1,0 +1,59 @@
+Fortia  gameserver
+
+Addons are structured like so:
+
+	addon.json - Addon information
+	recsurces - Folder containing addtional recourses that will be downloaded when you connect
+		resources.json - Information about the resources
+		textures - Folder containing textures
+			texture.png
+		models - Folder containing blockmodels (fortia storing models made out of blocks)
+			model.blkmdl
+		may not be needed: proto - Folder containing protobuf files to be downlaoded and converted
+			message.proto
+	scripts
+		server - Scripts that are executed on the server
+		client - Scripts that are executed on the client
+		shared - Scripts that are executed on both the the client and the server
+
+More detailed information:
+
+	addon.json:
+
+	{
+		"name": "Some addon",
+		"version": "alpha1",
+		"type": "gamemode",
+		"author": "jonas747",
+		"license": "bsd"
+	}
+
+	resources/resources.json
+
+	{
+	}
+
+Scripts are written in javascript. 
+	- On the client they will be executed with eval(Try to hide the bad stuff).
+	- On the server they will be executde by otto, a javascript parser entirely in go
+
+	Event listeners:
+		You can listen for events with the following function:
+		
+		eventListenerId = Fortia.Listen(eventname string, callback function(data){});
+		
+		You can stop listening for events with:
+
+		Fortia.StopListen(eventListenerId); 
+
+	Networking:
+
+		Fortia.SetNetworkedInt(variableName string, value int, optional bool inNamespace) - Sets or Updates a networked integer
+		Fortia.GetNetworkedInt(variableName string, optional bool inNamespace) int - Returns the value of a networked integer
+
+		Fortia.SetNetworkedString(variableName string, value string, optional bool inNamespace)
+		Fortia.GetNetworkedInt()
+
+		You can listen for networked variable changes with:
+
+		eventListenerId = Fortia.NetVarListen

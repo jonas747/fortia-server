@@ -1,0 +1,7 @@
+{
+	"name": "Test addon",
+	"version": "0.1",
+	"type": "gamemode",
+	"author": "jonas747",
+	"license": "bsd"
+}
