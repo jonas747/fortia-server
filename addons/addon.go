@@ -86,7 +86,7 @@ func (a *Addon) Run(ottoInstance *otto.Otto) []error {
 	return errs
 }
 
-//Scans a directory recursively returning all paths
+// Scans a directory recursively returning all paths
 func scanDir(path string) ([]string, error) {
 	dirInfo, err := ioutil.ReadDir(path)
 	if err != nil {
