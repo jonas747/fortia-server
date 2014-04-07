@@ -4,6 +4,8 @@
 		"hostname": "Wild test server"
 	},
 	"addons": [
+		"base",
 		"testaddon"
-	]
+	],
+	"debug": true
 }

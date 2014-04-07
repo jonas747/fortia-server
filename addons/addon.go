@@ -70,17 +70,16 @@ func LoadAddon(path string) (*Addon, error) {
 // Runs the shared and server scripts on the server
 func (a *Addon) Run(ottoInstance *otto.Otto) []error {
 	errs := make([]error, 0)
-	for _, serverScript := range a.ServerScripts {
-		err := serverScript.Run(ottoInstance)
-		if err != nil {
-			errs = append(errs, errors.New(serverScript.Path+":"+err.Error()))
-		}
-	}
-
 	for _, sharedScript := range a.SharedScripts {
 		err := sharedScript.Run(ottoInstance)
 		if err != nil {
 			errs = append(errs, errors.New(sharedScript.Path+":"+err.Error()))
+		}
+	}
+	for _, serverScript := range a.ServerScripts {
+		err := serverScript.Run(ottoInstance)
+		if err != nil {
+			errs = append(errs, errors.New(serverScript.Path+":"+err.Error()))
 		}
 	}
 	return errs

@@ -11,6 +11,9 @@ import (
 
 // The networking engine. Holds togheter all the connections and handlers
 type Engine struct {
+	ConnCloseChan   chan Connection
+	EmitConnOnClose bool
+
 	registerConn   chan Connection // Channel for registering new connections
 	unregisterConn chan Connection // Channel for unregistering connections
 	broadcastChan  chan []byte     // Channel for broadcasting messages to all connections
@@ -22,6 +25,7 @@ type Engine struct {
 
 func NewEngine() *Engine {
 	return &Engine{
+		ConnCloseChan:  make(chan Connection),
 		registerConn:   make(chan Connection),
 		unregisterConn: make(chan Connection),
 		broadcastChan:  make(chan []byte),
@@ -41,7 +45,6 @@ func (e *Engine) AddListener(listener Listener) {
 func (e *Engine) handleConn(conn Connection) {
 	conn.Run()
 	e.registerConn <- conn
-	fmt.Println("New connection!")
 	for {
 		data, err := conn.Read()
 		if err != nil {
@@ -53,7 +56,6 @@ func (e *Engine) handleConn(conn Connection) {
 			continue
 		}
 	}
-	fmt.Println("Disconnected from a connection :(")
 	e.unregisterConn <- conn
 }
 
@@ -88,8 +90,8 @@ func (e *Engine) handleMessage(data []byte, conn Connection) error {
 	// ready the function
 	funcVal := reflect.ValueOf(handler.CallBack)
 	decVal := reflect.Indirect(reflect.ValueOf(decoded)) // decoded is a pointer, so we get the value it points to
-	sessionDVal := reflect.ValueOf(conn.GetSessionData())
-	resp := funcVal.Call([]reflect.Value{decVal, sessionDVal}) // Call it
+	connVal := reflect.ValueOf(conn)
+	resp := funcVal.Call([]reflect.Value{decVal, connVal}) // Call it
 
 	if len(resp) == 0 {
 		return nil
@@ -117,6 +119,9 @@ func (e *Engine) ListenChannels() {
 			e.connections[d] = true
 		case d := <-e.unregisterConn: //Unregister a connection
 			delete(e.connections, d)
+			if e.EmitConnOnClose {
+				e.ConnCloseChan <- d
+			}
 		case msg := <-e.broadcastChan: //Broadcast a message to all connections
 			for conn := range e.connections {
 				conn.Send(msg)

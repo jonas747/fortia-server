@@ -1,0 +1,8 @@
+{
+	"name": "Base",
+	"description": "A library conataining wrappers for the basic API for fortia",
+	"version": "0.1",
+	"type": "library",
+	"author": "jonas747",
+	"license": "bsd"
+}

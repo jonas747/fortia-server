@@ -2,20 +2,21 @@ package addons
 
 import (
 	"errors"
+	"github.com/Sirupsen/logrus"
 	"github.com/jonas747/fortia/gameserver/netengine"
 	"github.com/robertkrimen/otto"
 )
 
-type Logger interface {
-	Info(info ...string)
-	Error(err ...string)
-}
-
 type AddonManager struct {
-	Addons       []*Addon
-	OttoInstance *otto.Otto
-	NetEngine    *netengine.Engine
-	Log          Logger
+	Addons          []*Addon
+	OttoInstance    *otto.Otto
+	NetEngine       *netengine.Engine
+	Log             *logrus.Logger
+	Players         map[int]*Player
+	BlockTypes      []BlockType
+	ScriptEventChan chan Event
+
+	idChan chan int
 }
 
 func LoadAddons(names []string, folder string) (*AddonManager, error) {
@@ -30,18 +31,20 @@ func LoadAddons(names []string, folder string) (*AddonManager, error) {
 		}
 		addons = append(addons, addon)
 	}
-	return &AddonManager{addons, ottoInstance, nil, nil}, nil
-}
 
-// Runs all addons
-func (a *AddonManager) RunAddons() {
-	for i := 0; i < len(a.Addons); i++ {
-		addon := a.Addons[i]
-		errs := addon.Run(a.OttoInstance)
-		for _, err := range errs {
-			a.Log.Error(err.Error())
-		}
-	}
+	idChan := make(chan int)
+	idGen(idChan)
+
+	return &AddonManager{
+		addons,
+		ottoInstance,
+		nil,
+		nil,
+		make(map[int]*Player),
+		make([]BlockType, 0),
+		make(chan Event),
+		idChan,
+	}, nil
 }
 
 func (a *AddonManager) EnableAddon(name string) {
