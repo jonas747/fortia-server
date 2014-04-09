@@ -1,5 +1,8 @@
-function poop(thing){
-	console.log("I pooped an " + thing)
-}
+Fortia.on("playerjoin", function(player){
+	var msgData = {name:"frank", poop:"ing"};
+	Fortia.Net.sendUsrMessage("something", msgData, player);
+})
 
-poop(new Date());
+Fortia.Net.on("poop", function(){
+	console.log("Received poop message")
+})

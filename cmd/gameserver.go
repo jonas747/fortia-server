@@ -34,9 +34,9 @@ func LoadConfig() {
 
 func main() {
 	log = logrus.New()
-
 	// Set appropiate loglevel
 	log.Level = logrus.Info
+	log.Formatter = new(TextFormatter)
 
 	log.Info("Starting fortia gamsesever")
 	LoadConfig()

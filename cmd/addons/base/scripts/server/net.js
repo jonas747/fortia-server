@@ -1,7 +1,5 @@
 var Fortia = Fortia || {};
-if(!Fortia.Net){
-	Fortia.Net = {}
-}
+Fortia.Net = Fortia.Net || {};
 
 /**
 (SERVER) Sends a message to the player "player"
@@ -13,4 +11,5 @@ if(!Fortia.Net){
 **/
 Fortia.Net.sendUsrMessage = function(name, data, player){
 	// Need native stuff
+	_fortiaSendUsrMessage(name, data, player);
 }

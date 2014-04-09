@@ -12,7 +12,7 @@ if(!Fortia.Net){
 Listens for networked messages
 @function on
 @param {String} name - The message name we will listen for
-@param {Function} callback - The callback. Will be called with data.
+@param {Function} callback - The callback. Will be called with data. and sender if were on the server
 @memberof Net
 **/ 
 Fortia.Net.on = function(name, callback){
@@ -34,7 +34,8 @@ Emits a network message event
 @param {object} data - The message data.
 @memberof Net
 **/ 
-Fortia.Net.emit = function(name, data){
+Fortia.Net.emit = function(name, data, sender){
+	console.debug("Emitting networking event ["+name+"]")
 	if(!Fortia.Net._eventListeners){
 		return
 	}
@@ -42,6 +43,10 @@ Fortia.Net.emit = function(name, data){
 		return
 	}
 	for (var i = 0; i < Fortia.Net._eventListeners[name].length; i++) {
-		Fortia.Net._eventListeners[name][i](data)
+		if(_fortiaclient){
+			Fortia.Net._eventListeners[name][i](data)
+		}else{
+			Fortia.Net._eventListeners[name][i](data, sender)			
+		}
 	};
 }

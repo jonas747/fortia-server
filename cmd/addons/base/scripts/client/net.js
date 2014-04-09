@@ -11,5 +11,5 @@ if(!Fortia.Net){
 @memberof Net
 **/
 Fortia.Net.sendMessage = function(name, data){
-	// Need native stuff
+	_fortiaSendMessage(name, data);
 }

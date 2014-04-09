@@ -3,7 +3,7 @@ package addons
 import (
 	"code.google.com/p/goprotobuf/proto"
 	"encoding/json"
-	//"github.com/jonas747/fortia/gameserver/netengine"
+	"github.com/jonas747/fortia/gameserver/netengine"
 	"github.com/jonas747/fortia/messages"
 	"github.com/robertkrimen/otto"
 )
@@ -32,7 +32,6 @@ func jsUsrMessage(a *AddonManager) func(otto.FunctionCall) otto.Value {
 		}
 
 		RealPlayer := a.Players[int(idInt)]
-
 		data := call.Argument(1)
 		exportedData, err := data.Export()
 		if err != nil {
@@ -49,7 +48,7 @@ func jsUsrMessage(a *AddonManager) func(otto.FunctionCall) otto.Value {
 		msg := new(messages.FortiaMessage)
 		msg.Name = proto.String(name.String())
 		msg.Data = proto.String(string(serializedData))
-		serializedMessage, err := proto.Marshal(msg)
+		serializedMessage, err := netengine.EncodeMessage(msg, int32(messages.MessageTypes_SERVERCLIENTMESSAGE))
 		if err != nil {
 			a.Log.Error("Error serializing message")
 			return otto.NullValue()

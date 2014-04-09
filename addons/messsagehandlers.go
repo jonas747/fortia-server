@@ -8,9 +8,29 @@ import (
 
 type netHandler interface{}
 
+// Handles Fortia.sendMessage() messages(client->server)
 func netClientServerMsgHandler(a *AddonManager) netHandler {
 	return func(msg messages.FortiaMessage, conn netengine.Connection) {
 		// Emit event
+		playerId, exists := conn.GetSessionData().Get("id")
+		if !exists {
+			a.Log.Warn("Player id does not exist. client tried to send client->server message")
+			return
+		}
+		playerIdInt, ok := playerId.(int)
+		if !ok {
+			a.Log.Error("Failed casting interface{} to int, id")
+			return
+		}
+
+		player := a.Players[playerIdInt]
+
+		evt := NetEvent{
+			msg.GetName(),
+			msg.GetData(),
+			player.ToOttoVal(a.OttoInstance),
+		}
+		a.ScriptEventChan <- evt
 	}
 }
 
@@ -27,11 +47,7 @@ func netHelloHandler(a *AddonManager) netHandler {
 			id,
 		}
 		a.Players[id] = &player
-		evt := Event{
-			"playerjoin",
-			player.ToOttoVal(a.OttoInstance),
-		}
-		a.ScriptEventChan <- evt
+
 		response := new(messages.HelloResp)
 		response.Message = proto.String("OK")
 		encoded, _ := netengine.EncodeMessage(response, int32(messages.MessageTypes_HELLO_RESP))
@@ -39,11 +55,11 @@ func netHelloHandler(a *AddonManager) netHandler {
 	}
 }
 
-// TPDP: only download new resources if updated versions
+// TODO: only download new resources if updated versions
 func netGetClResources(a *AddonManager) netHandler {
 	return func(msg messages.GetCLResources, conn netengine.Connection) []byte {
 		appendResourceScript := func(dest []*messages.Resource, script *Script) []*messages.Resource {
-			a.Log.Debug("Appending script ", script.Path)
+			a.Log.Debug("Sending script ", script.Path)
 			res := new(messages.Resource)
 			res.Name = proto.String(script.Path)
 			test := messages.ResourceType_RType_Script
@@ -72,5 +88,30 @@ func netGetClResources(a *AddonManager) netHandler {
 
 		}
 		return encoded
+	}
+}
+
+func netClientReady(a *AddonManager) netHandler {
+	return func(msg messages.Empty, conn netengine.Connection) {
+		// Emit the event playerjoin
+		playerId, exists := conn.GetSessionData().Get("id")
+		if !exists {
+			a.Log.Warn("Player id does not exist. client tried to send clientReady message")
+			return
+		}
+		playerIdInt, ok := playerId.(int)
+		if !ok {
+			a.Log.Error("Failed casting interface{} to int, id")
+			return
+		}
+
+		player := a.Players[playerIdInt]
+
+		evt := GeneralEvent{
+			"playerjoin",
+			player.ToOttoVal(a.OttoInstance),
+		}
+		a.ScriptEventChan <- evt
+		a.Log.Debug("A player connection is now ready!")
 	}
 }

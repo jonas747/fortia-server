@@ -17,6 +17,7 @@ func (a *AddonManager) AddHandlers() {
 	addHandler(netClientServerMsgHandler(a), messages.MessageTypes_CLIENTSERVERMESSAGE, a.NetEngine)
 	addHandler(netHelloHandler(a), messages.MessageTypes_HELLO, a.NetEngine)
 	addHandler(netGetClResources(a), messages.MessageTypes_GETCLRESOURCES, a.NetEngine)
+	addHandler(netClientReady(a), messages.MessageTypes_CLIENTREADY, a.NetEngine)
 }
 
 func (a *AddonManager) AddExtensions() {
@@ -31,7 +32,7 @@ func (a *AddonManager) AddExtensions() {
 			}
 			idInt := id.(int)
 			ply := a.Players[idInt]
-			evt := Event{
+			evt := GeneralEvent{
 				"playerleave",
 				ply.ToOttoVal(a.OttoInstance),
 			}
@@ -42,6 +43,7 @@ func (a *AddonManager) AddExtensions() {
 	a.OttoInstance.Set("_fortiaRegisterBlockType", jsRegisterBlockType(a))
 	a.OttoInstance.Set("_fortialog", jsLog(a))
 	a.OttoInstance.Set("_fortiaerror", jsErr(a))
+	a.OttoInstance.Set("_fortiadebug", jsDebug(a))
 }
 
 func idGen(out chan int) {
