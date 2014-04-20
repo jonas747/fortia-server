@@ -23,7 +23,7 @@ func (e *Engine) ListenForClosedConnection() {
 		}
 
 		idInt := id.(int)
-		evt := NewGeneralEvent("playerleave", e.GetJsPlayer(idInt))
+		evt := NewGeneralEvent("playerleave", idInt)
 
 		e.EmitEvent(evt)
 

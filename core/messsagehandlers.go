@@ -24,7 +24,7 @@ func netClientServerMsgHandler(e *Engine) netHandler {
 			return
 		}
 
-		evt := NewGeneralEvent(msg.GetName(), msg.GetData(), e.GetJsPlayer(playerIdInt))
+		evt := NewGeneralEvent(msg.GetName(), msg.GetData(), playerIdInt)
 		e.EmitEvent(evt)
 	}
 }
@@ -48,7 +48,7 @@ func netHelloHandler(e *Engine) netHandler {
 		})
 
 		// Send player connect event
-		evt := NewGeneralEvent("playerconnect", e.GetJsPlayer(id))
+		evt := NewGeneralEvent("playerconnect", id)
 		e.EmitEvent(evt)
 
 		response := new(messages.HelloResp)
@@ -106,7 +106,7 @@ func netClientReady(e *Engine) netHandler {
 		}
 
 		player := e.Players[playerIdInt]
-		evt := NewGeneralEvent("playerjoin", e.GetJsPlayer(player.id))
+		evt := NewGeneralEvent("playerjoin", player.id)
 		e.EmitEvent(evt)
 
 		e.Log.Debug("A player connection is now ready!")

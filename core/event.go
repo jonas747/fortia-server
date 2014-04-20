@@ -85,6 +85,7 @@ func (e *Engine) EmitEvent(evt Event) {
 
 }
 
+// v8's govaluetojsvalue dosent handle maps very well so this is a slow workaround
 func (e *Engine) ToJsValue(value interface{}, cs v8.ContextScope) *v8.Value {
 	encoded, err := json.Marshal(value)
 	if err != nil {
