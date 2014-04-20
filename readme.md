@@ -16,12 +16,15 @@ It's in very early stages so dont expect anything, and the code is probably very
 	- Not started on, Need to find a decent physics engine that works for go
 
  - API:
-	- Done:
-		- Sending and receiving messages between the server and clients
-		- Getting a list of players (Redoing this later)
-		- Networking and regular events
-		- Console.log and the like
+	- Sending and receiving messages between the server and clients
+	- Getting a list of players (Redoing this later)
+	- Networking and regular events
+	- Console.log and the like
 
+- Network:
+	- Clients can connect
+	- Clients can send and receive messages in the protobuf format (Javascript objects will be serialized with json)
+	- Networking events works
 
 #Technical information: 
 	
