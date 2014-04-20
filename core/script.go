@@ -56,6 +56,10 @@ func (s *Script) Compile(js *v8.Engine) {
 
 // Executes the script
 func (s *Script) Run(ctx *v8.Context) {
+	if s.V8Script == nil {
+		log.Error("Tried running script that wasnt compiled")
+		return
+	}
 	ctx.Scope(func(callback v8.ContextScope) {
 		callback.Run(s.V8Script)
 	})

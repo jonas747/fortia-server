@@ -3,7 +3,6 @@ package core
 import (
 	"encoding/json"
 	"github.com/idada/v8.go"
-	//"reflect"
 )
 
 type Event interface {
@@ -62,8 +61,14 @@ func (e *Engine) EmitEvent(evt Event) {
 		for i := 0; i < len(dataVals); i++ {
 			val := dataVals[i]
 
-			jsVal := e.ToJsValue(val, cs)
-			dataJsVals = append(dataJsVals, jsVal)
+			// Make sure we only convert the values we need to convert
+			switch t := val.(type) {
+			case *v8.Value:
+				dataJsVals = append(dataJsVals, t)
+			default:
+				jsVal := e.ToJsValue(val, cs)
+				dataJsVals = append(dataJsVals, jsVal)
+			}
 		}
 
 		if evt.GetObject() == nil {

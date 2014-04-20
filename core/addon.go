@@ -2,7 +2,7 @@ package core
 
 import (
 	"encoding/json"
-	v8 "github.com/idada/v8.go"
+	//"github.com/idada/v8.go"
 	"io/ioutil"
 	"os"
 )
@@ -21,11 +21,11 @@ type Addon struct {
 	Info          AddonInfo
 	ClientScripts []*Script
 	ServerScripts []*Script
-	SharedScripts []*Script
 	Resources     []*Resource
+	Path          string
 }
 
-func LoadAddon(path string) (*Addon, error) {
+func (e *Engine) LoadAddon(path string) (*Addon, error) {
 
 	file, err := ioutil.ReadFile(path + "/addon.json")
 	if err != nil {
@@ -38,32 +38,9 @@ func LoadAddon(path string) (*Addon, error) {
 		return nil, err
 	}
 
-	cdirExists, _ := exists(path + "/scripts/client")
-	sdirExists, _ := exists(path + "/scripts/server")
-	shdirExists, _ := exists(path + "/scripts/shared")
-
-	clientScripts := make([]*Script, 0)
-	if cdirExists {
-		clientScripts, err = LoadScripts(path+"/scripts/client", SCRIPT_CLIENT)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	serverScripts := make([]*Script, 0)
-	if sdirExists {
-		serverScripts, err = LoadScripts(path+"/scripts/server", SCRIPT_SERVER)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	sharedScripts := make([]*Script, 0)
-	if shdirExists {
-		sharedScripts, err = LoadScripts(path+"/scripts/shared", SCRIPT_SHARED)
-		if err != nil {
-			return nil, err
-		}
+	initScript, err := LoadScript(path+"/scripts/init.js", SCRIPT_SERVER)
+	if err != nil {
+		return nil, err
 	}
 
 	resources, err := LoadResources(path + "/resources")
@@ -71,33 +48,18 @@ func LoadAddon(path string) (*Addon, error) {
 		return nil, err
 	}
 
-	return &Addon{
-		Info:          info,
-		ClientScripts: clientScripts,
-		ServerScripts: serverScripts,
-		SharedScripts: sharedScripts,
-		Resources:     resources,
-	}, nil
-}
+	addon := &Addon{
+		Info:      info,
+		Resources: resources,
+		Path:      path,
+	}
 
-// Compiles, and runs the shared and server scripts on the server
-func (a *Addon) RunScripts(ctx *v8.Context) {
-	for _, sharedScript := range a.SharedScripts {
-		sharedScript.Run(ctx)
-	}
-	for _, serverScript := range a.ServerScripts {
-		serverScript.Run(ctx)
-	}
-}
+	e.currentlyLoading = addon
+	//compile and Execute the init script
+	initScript.Compile(e.JsEngine)
+	initScript.Run(e.JsContext)
 
-// Compiles all server scripts
-func (a *Addon) CompileScripts(js *v8.Engine) {
-	for _, sharedScript := range a.SharedScripts {
-		sharedScript.Compile(js)
-	}
-	for _, serverScript := range a.ServerScripts {
-		serverScript.Compile(js)
-	}
+	return addon, nil
 }
 
 // Scans a directory recursively returning all paths

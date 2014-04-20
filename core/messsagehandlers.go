@@ -2,8 +2,10 @@ package core
 
 import (
 	"code.google.com/p/goprotobuf/proto"
+	"github.com/idada/v8.go"
 	messages "github.com/jonas747/fortia-messages"
 	"github.com/jonas747/fortia-server/netengine"
+	"reflect"
 )
 
 type netHandler interface{}
@@ -22,9 +24,7 @@ func netClientServerMsgHandler(e *Engine) netHandler {
 			return
 		}
 
-		player := e.Players[playerIdInt]
-
-		evt := NewGeneralEvent(msg.GetName(), msg.GetData(), player.Map())
+		evt := NewGeneralEvent(msg.GetName(), msg.GetData(), e.GetJsPlayer(playerIdInt))
 		e.EmitEvent(evt)
 	}
 }
@@ -36,14 +36,19 @@ func netHelloHandler(e *Engine) netHandler {
 		conn.GetSessionData().Set("id", id)
 
 		player := Player{
-			0, 0, 0,
 			conn,
 			id,
 		}
 		e.Players[id] = &player
 
+		// Create javascript player object
+		e.JsContext.Scope(func(cs v8.ContextScope) {
+			function := cs.Global().GetProperty("Fortia").ToObject().GetProperty("initPlayer").ToFunction()
+			function.Call(e.JsEngine.GoValueToJsValue(reflect.ValueOf(id)))
+		})
+
 		// Send player connect event
-		evt := NewGeneralEvent("playerconnect", player.Map())
+		evt := NewGeneralEvent("playerconnect", e.GetJsPlayer(id))
 		e.EmitEvent(evt)
 
 		response := new(messages.HelloResp)
@@ -58,7 +63,6 @@ func netHelloHandler(e *Engine) netHandler {
 func netGetClResources(e *Engine) netHandler {
 	return func(msg messages.GetCLResources, conn netengine.Connection) []byte {
 		appendResourceScript := func(dest []*messages.Resource, script *Script) []*messages.Resource {
-			e.Log.Debug("Sending script ", script.Path)
 			res := new(messages.Resource)
 			res.Name = proto.String(script.Path)
 			test := messages.ResourceType_RType_Script
@@ -71,9 +75,6 @@ func netGetClResources(e *Engine) netHandler {
 		// get all resources
 		resources := make([]*messages.Resource, 0)
 		for _, addon := range e.Addons {
-			for _, script := range addon.SharedScripts {
-				resources = appendResourceScript(resources, script)
-			}
 			for _, script := range addon.ClientScripts {
 				resources = appendResourceScript(resources, script)
 			}
@@ -105,7 +106,7 @@ func netClientReady(e *Engine) netHandler {
 		}
 
 		player := e.Players[playerIdInt]
-		evt := NewGeneralEvent("playerjoin", player.Map())
+		evt := NewGeneralEvent("playerjoin", e.GetJsPlayer(player.id))
 		e.EmitEvent(evt)
 
 		e.Log.Debug("A player connection is now ready!")
@@ -126,12 +127,8 @@ func netPlayerMove(e *Engine) netHandler {
 		}
 
 		player := e.Players[playerIdInt]
-		player.x = float64(*msg.NewX)
-		player.y = float64(*msg.NewY)
-		player.z = float64(*msg.NewZ)
-		e.Players[playerIdInt] = player
 
-		evt := NewGeneralEvent("playermove", player.Map())
+		evt := NewGeneralEvent("playermove", player, msg.GetNewX(), msg.GetNewY(), msg.GetNewZ())
 		e.EmitEvent(evt)
 	}
 }

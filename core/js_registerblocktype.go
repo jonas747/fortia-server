@@ -1,6 +1,8 @@
 package core
 
 /*
+TODO: re implement this later
+
 import (
 	"github.com/robertkrimen/otto"
 )

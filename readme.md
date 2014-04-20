@@ -36,9 +36,8 @@ Addons are structured like so:
 	- resources.json - Information about the resources
 	- TBD
 - scripts - Folder containing scripts
-	- server - Scripts that are executed on the server
-	- client - Scripts that are executed on the client
-	- shared - Scripts that are executed on both the the client and the server
+	- init.js
+		- This script will be executed on server startup, use include(), and addClientJsFile() in this file.
 
 More detailed information:
 

@@ -20,6 +20,8 @@ type Engine struct {
 	PlayersLock *sync.Mutex
 	BlockTypes  []BlockType
 
+	currentlyLoading *Addon
+
 	idChan chan int
 }
 
@@ -65,18 +67,14 @@ func (e *Engine) Start(listenAddr string, addons []string, folder string) {
 	// Adds the javascript extensions, sets e.JsContext
 	e.AddJsExtensions()
 
-	e.Log.Debug("Loading and compiling addons")
+	e.Log.Debug("Loading, compiling and running addons")
 	// Load all the addons, compile the scripts etc..
 	err := e.LoadAddons(addons, folder)
 	if err != nil {
 		e.Log.Error("Error loading addons: ", err)
 		return
 	}
-
-	e.Log.Debug("Running scripts")
-	// Run the scripts
-	e.RunScripts()
-
+	go e.ListenForClosedConnection()
 }
 
 // Loads and compiles addons into memory
@@ -88,13 +86,10 @@ func (e *Engine) LoadAddons(names []string, folder string) error {
 		e.Log.Debug("Loading addon ", name)
 
 		// Load the addon
-		addon, err := LoadAddon(folder + "/" + name)
+		addon, err := e.LoadAddon(folder + "/" + name)
 		if err != nil {
 			return errors.New("Error loading addon " + names[i] + ", " + err.Error())
 		}
-
-		//Compile the server scripts
-		addon.CompileScripts(e.JsEngine)
 
 		addons = append(addons, addon)
 	}

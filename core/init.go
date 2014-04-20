@@ -35,6 +35,9 @@ func (e *Engine) AddJsExtensions() {
 	global.Bind("_fortiaGetPlayers", jsGetPlayers(e))
 	global.Bind("_fortiaSendUsrMessage", jsUsrMessage(e))
 
+	global.Bind("include", jsInclude(e))
+	global.Bind("addClientJsFile", jsAddClientJsFile(e))
+
 	ctx := e.JsEngine.NewContext(global)
 	e.JsContext = ctx
 }
