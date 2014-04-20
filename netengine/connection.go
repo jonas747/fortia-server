@@ -2,15 +2,18 @@ package netengine
 
 import (
 	"code.google.com/p/go.net/websocket"
+	"errors"
+	"time"
 )
 
 type Connection interface {
-	Send(data []byte)              // Sends data
+	Send(data []byte) error        // Sends data
 	Read() ([]byte, error)         // Blocks untill data is received, then returns []byte
 	Kind() string                  // What kind of connection is it (websocket, tcp etc..)
 	Close()                        // Closes the connections ands stops all goroutines associated with it
 	GetSessionData() *SessionStore // Gets the session datastore
 	Run()                          // Starts the writer and reader goroutines
+	Open() bool                    // Wether this connection is open ot not
 }
 
 type SessionStore struct {
@@ -35,6 +38,7 @@ type WebsocketConn struct {
 	writeChan   chan []byte
 
 	stopWriting chan bool
+	isOpen      bool
 }
 
 func NewWebsocketConn(c *websocket.Conn) Connection {
@@ -46,13 +50,25 @@ func NewWebsocketConn(c *websocket.Conn) Connection {
 		writeChan:    make(chan []byte),
 		stopWriting:  make(chan bool),
 		readErrChan:  make(chan error),
+		isOpen:       true,
 	}
 	return &conn
 }
 
 // Implements Connection.Send([]byte)
-func (w *WebsocketConn) Send(b []byte) {
-	w.writeChan <- b
+func (w *WebsocketConn) Send(b []byte) error {
+	if !w.isOpen {
+		return errors.New("Cannot call WebsocketConn.Send() on a closed connection")
+	}
+	after := time.After(time.Duration(5) * time.Second) // Time out
+	select {
+	case w.writeChan <- b:
+		return nil
+	case <-after:
+		w.isOpen = false
+		w.Close()
+		return errors.New("Timed out sending payload to writechan")
+	}
 }
 
 // Implements Connection.Read()([]byte, error)
@@ -72,7 +88,12 @@ func (w *WebsocketConn) Kind() string {
 
 // Implements Connection.Close()
 func (w *WebsocketConn) Close() {
+	w.isOpen = false
 	w.conn.Close()
+}
+
+func (w *WebsocketConn) Open() bool {
+	return w.isOpen
 }
 
 func (w *WebsocketConn) GetSessionData() *SessionStore {
@@ -108,8 +129,17 @@ func (w *WebsocketConn) reader() {
 		err := websocket.Message.Receive(w.conn, &msg)
 		if err != nil {
 			w.Close()
-			w.stopWriting <- true
+			go func() {
+				after := time.After(time.Duration(5) * time.Second)
+				select {
+				case w.stopWriting <- true:
+					return
+				case <-after:
+					return
+				}
+			}()
 			w.readErrChan <- err
+			w.isOpen = false
 			return
 		}
 		w.readChan <- msg

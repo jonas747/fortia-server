@@ -1,0 +1,8 @@
+{
+	"name": "stdBlcoks",
+	"description": "Standard blocks used in stdWgen",
+	"version": "0.1",
+	"type": "world",
+	"author": "jonas747",
+	"license": "bsd"
+}

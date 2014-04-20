@@ -1,0 +1,8 @@
+{
+	"name": "stdWgen",
+	"description": "Standard world generator",
+	"version": "0.1",
+	"type": "world",
+	"author": "jonas747",
+	"license": "bsd"
+}

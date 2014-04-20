@@ -1,0 +1,8 @@
+{
+	"name": "visiblePlayer",
+	"description": "Places a block on each player",
+	"version": "0.1",
+	"type": "utility",
+	"author": "jonas747",
+	"license": "bsd"
+}

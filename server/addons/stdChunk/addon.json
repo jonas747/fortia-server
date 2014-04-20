@@ -1,0 +1,8 @@
+{
+	"name": "stdChunk",
+	"description": "Standbard chunk",
+	"version": "0.1",
+	"type": "world",
+	"author": "jonas747",
+	"license": "bsd"
+}

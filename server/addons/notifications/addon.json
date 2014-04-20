@@ -1,0 +1,8 @@
+{
+	"name": "notifications",
+	"description": "notifies you about different stuff",
+	"version": "0.1",
+	"type": "debug",
+	"author": "jonas747",
+	"license": "bsd"
+}
