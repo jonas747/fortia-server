@@ -126,9 +126,7 @@ func netPlayerMove(e *Engine) netHandler {
 			return
 		}
 
-		player := e.Players[playerIdInt]
-
-		evt := NewGeneralEvent("playermove", player, msg.GetNewX(), msg.GetNewY(), msg.GetNewZ())
+		evt := NewGeneralEvent("playermove", playerIdInt, msg.GetNewX(), msg.GetNewY(), msg.GetNewZ())
 		e.EmitEvent(evt)
 	}
 }

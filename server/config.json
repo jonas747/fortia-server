@@ -5,9 +5,10 @@
 	},
 	"addons": [
 		"base",
+		"notifications",
+		"player-extensions",
 		"console",
 		"stdBlocks",
-		"notifications",
 		"stdWgen",
 		"stdChunk",
 		"visiblePlayers"

@@ -1,5 +1,7 @@
 package core
 
+import ()
+
 func jsLog(v ...interface{}) {
 	log.Info(v...)
 }

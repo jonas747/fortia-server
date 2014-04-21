@@ -12,7 +12,7 @@ var Fortia = Fortia || {};
 	@param {Number} color - The color of the block
 	**/
 	Fortia.registerBlockType = function(name, color){
-		id = newId();
+		var id = newId();
 		Fortia.blockColors[name] = color;
 		Fortia.blockIds[name] = id;
 		Fortia.blockIdToColors[id] = color;

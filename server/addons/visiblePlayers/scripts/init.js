@@ -1,3 +1,5 @@
+addClientJsFile("client.js")
+
 Fortia.on("playerjoin", function(player){
 	var players = Fortia.getPlayers()
 	if(!players)

@@ -1,0 +1,1 @@
+addClientJsFile("client.js");

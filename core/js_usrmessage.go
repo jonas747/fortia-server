@@ -16,7 +16,15 @@ func jsUsrMessage(e *Engine) interface{} {
 			return
 		}
 		// Get the player id
-		id := player.GetProperty("id").ToInteger()
+		id := 0
+		if player.IsInt32() || player.IsInt32() {
+			id = int(player.ToInteger())
+		} else if player.IsObject() {
+			id = int(player.GetProperty("id").ToInteger())
+		} else {
+			e.Log.Error("Unsuported player argument type calling jsUsrMessage")
+			return
+		}
 
 		RealPlayer, ok := e.Players[int(id)]
 		if !ok {
