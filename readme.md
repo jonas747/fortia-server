@@ -19,7 +19,8 @@ It's in very early stages so dont expect anything, and the code is probably very
 	- Sending and receiving messages between the server and clients
 	- Getting a list of players (Redoing this later)
 	- Networking and regular events
-	- Console.log and the like
+	- Console.log console.error console.debug works
+	- basic fileapi: Fortia.fileRead fileWrite fileExists fileCreateDir
 
 - Network:
 	- Clients can connect
