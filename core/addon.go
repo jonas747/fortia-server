@@ -2,9 +2,7 @@ package core
 
 import (
 	"encoding/json"
-	//"github.com/idada/v8.go"
 	"io/ioutil"
-	"os"
 )
 
 // Struct representing the addon.json file
@@ -87,16 +85,4 @@ func scanDir(path string) ([]string, error) {
 	}
 
 	return out, nil
-}
-
-// exists returns whether the given file or directory exists or not
-func exists(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true, nil
-	}
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-	return false, err
 }

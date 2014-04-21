@@ -15,5 +15,5 @@ Fortia.Net.sendUsrMessage = function(name, data, player){
 		return
 	}
 	// Need native stuff
-	_fortiaSendUsrMessage(name, data, player);
+	Fortia._sendUsrMessage(name, data, player);
 }

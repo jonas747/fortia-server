@@ -25,10 +25,8 @@ include("shared/player.js");
 include("shared/vector.js");
 
 // Server only
-include("server/stacktrace.js")
 include("server/block.js")
 include("server/blockmodel.js")
-include("server/console.js")
 include("server/getplayers.js")
 include("server/net.js")
 include("server/player.js")

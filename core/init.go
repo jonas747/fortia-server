@@ -26,19 +26,34 @@ func (e *Engine) AddJsExtensions() {
 	e.JsEngine.AddMessageListener(func(msg *v8.Message) {
 		e.Log.Errorf("%s:%d:%d: %s", msg.ScriptResourceName, msg.Line, msg.StartColumn, msg.Message)
 	})
-	global := e.JsEngine.NewObjectTemplate()
+	globalTemplate := e.JsEngine.NewObjectTemplate()
 
-	global.Bind("_logInfo", jsLog)
-	global.Bind("_logDebug", jsDebug)
-	global.Bind("_logError", jsError)
+	globalTemplate.Bind("include", jsInclude(e))
+	globalTemplate.Bind("addClientJsFile", jsAddClientJsFile(e))
 
-	global.Bind("_fortiaGetPlayers", jsGetPlayers(e))
-	global.Bind("_fortiaSendUsrMessage", jsUsrMessage(e))
+	ctx := e.JsEngine.NewContext(globalTemplate)
 
-	global.Bind("include", jsInclude(e))
-	global.Bind("addClientJsFile", jsAddClientJsFile(e))
+	ctx.Scope(func(cs v8.ContextScope) {
+		global := cs.Global()
 
-	ctx := e.JsEngine.NewContext(global)
+		// Fortia namespace
+		fortiaTemplate := e.JsEngine.NewObjectTemplate()
+
+		fortiaTemplate.Bind("_getPlayers", jsGetPlayers(e))
+		fortiaTemplate.Bind("_sendUsrMessage", jsUsrMessage(e))
+
+		jsFileApi(fortiaTemplate)
+
+		fortiaObj := e.JsEngine.MakeObject(fortiaTemplate)
+		global.SetProperty("Fortia", fortiaObj, v8.PA_None)
+
+		// console
+		consoleTemplate := e.JsEngine.NewObjectTemplate()
+		jsLogApi(consoleTemplate)
+		consoleObj := e.JsEngine.MakeObject(consoleTemplate)
+
+		global.SetProperty("console", consoleObj, v8.PA_None)
+	})
 	e.JsContext = ctx
 }
 

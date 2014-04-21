@@ -11,7 +11,8 @@
 		"stdBlocks",
 		"stdWgen",
 		"stdChunk",
-		"visiblePlayers"
+		"visiblePlayers",
+		"testaddon"
 	],
 	"debug": true
 }
