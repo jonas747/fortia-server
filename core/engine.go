@@ -75,6 +75,10 @@ func (e *Engine) Start(listenAddr string, addons []string, folder string) {
 		return
 	}
 	go e.ListenForClosedConnection()
+
+	// Emit server loaded event
+	evt := NewGeneralEvent("loaded")
+	e.EmitEvent(evt)
 }
 
 // Loads and compiles addons into memory
