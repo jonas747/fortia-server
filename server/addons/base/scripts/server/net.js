@@ -9,13 +9,13 @@ Fortia.Net = Fortia.Net || {};
 @param {Player} player - The player that receives the message
 @memberof Net
 **/
-Fortia.Net.sendUsrMessage = function(player, name, data){
+Fortia.Net.sendUsrMessage = function(player, name, data, compress){
 	if(arguments.length < 3){
 		console.error("Not enough arguments to call Fortia.Net.sendUsrMessage()")
 		return
 	}
 	// Need native stuff
-	Fortia._sendUsrMessage(player, name, data);
+	Fortia._sendUsrMessage(player, name, data, compress);
 }
 
 /**

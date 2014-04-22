@@ -1,7 +1,11 @@
 addClientJsFile("client.js");
 addClientJsFile("shared.js");
+//addClientJsFile("base64.js");
+//addClientJsFile("lz-string.js");
 
 include("shared.js");
+//include("base64.js");
+//include("lz-string.js");
 
 (function(){
 
@@ -16,7 +20,8 @@ include("shared.js");
 		//console.log("Sent a chunk")
 	})
 
-	Fortia.on("playermove", function(player){
+	Fortia.on("playermove", function(pid){
+		var player = Fortia.getPlayer(pid);
 		var oldPos = oldPlayerPositions[player.id];
 		if(oldPos == undefined)
 			oldPos = new Vector3();
@@ -54,12 +59,13 @@ include("shared.js");
 	});
 
 	function sendChunk(chunk, position, player){
+		//var compressed = compressChunk(chunk)
 		var chunkObj =  {
 			chunk: chunk, 
 			size: wgen.size,
 			position: position,
 			blockScale: wgen.blockScale
 		};
-		Fortia.Net.sendUsrMessage(player, "chunk", chunkObj)
+		Fortia.Net.sendUsrMessage(player, "chunk", chunkObj, true)
 	}
 })();

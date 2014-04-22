@@ -19,3 +19,16 @@ var chunkToWorld = function(pos, chunkSize, blockScale){
 
 	return clone;
 }
+
+function compressChunk(chunk){
+	var encoded = JSON.stringify(chunk)	
+	var compressed = LZString.compressToBase64(encoded);
+	return compressed
+}
+
+function decompressChunk(chunk){
+	var string = LZString.decompressFromBase64(chunk);
+	var obj = JSON.parse(string);
+
+	return obj;
+}

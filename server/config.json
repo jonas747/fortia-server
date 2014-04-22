@@ -8,7 +8,10 @@
 		"notifications",
 		"player-extensions",
 		"console",
-		"testaddon"
+		"testaddon",
+		"stdWgen",
+		"stdBlocks", 
+		"stdChunk"
 	],
 	"debug": true
 }
