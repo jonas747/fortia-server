@@ -35,7 +35,24 @@ func (g GeneralEvent) GetObject() *v8.Object {
 type NetEvent struct {
 	Name   string
 	Data   string
-	Sender Player
+	Sender int
+	Obj    *v8.Object
+}
+
+func (e *Engine) NewNetEvent(name, data string, sender int) NetEvent {
+	// Get the netevent object
+	// TODO: Instead of getting this each time theres a new netevent, cache it somewhere?
+	evt := NetEvent{
+		name, data, sender, nil,
+	}
+	e.JsContext.Scope(func(cs v8.ContextScope) {
+		global := cs.Global()
+		fortiaVal := global.GetProperty("Fortia")
+		fortiaObj := fortiaVal.ToObject()
+		NetObj := fortiaObj.GetProperty("Net").ToObject()
+		evt.Obj = NetObj
+	})
+	return evt
 }
 
 func (n NetEvent) GetName() string {
@@ -47,7 +64,7 @@ func (n NetEvent) GetData() []interface{} {
 }
 
 func (n NetEvent) GetObject() *v8.Object {
-	return nil
+	return n.Obj
 }
 
 func (e *Engine) EmitEvent(evt Event) {
@@ -79,7 +96,10 @@ func (e *Engine) EmitEvent(evt Event) {
 			emitFunc := emitVal.ToFunction()
 			emitFunc.Call(dataJsVals...)
 		} else {
-			log.Error("TODO: Handle emitEvent with event that has object to run the event on")
+			obj := evt.GetObject()
+			emitVal := obj.GetProperty("emit")
+			emitFunc := emitVal.ToFunction()
+			emitFunc.Call(dataJsVals...)
 		}
 	})
 

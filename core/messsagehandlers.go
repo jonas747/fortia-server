@@ -1,5 +1,14 @@
 package core
 
+/*
+The handshake:
+
+1. The client connects to the server using websockets
+2. The client send a Hello message
+3. The server responds with a Hello response
+4. When the client is ready(after downloading resources and such) the client send a ClientReady message
+*/
+
 import (
 	"code.google.com/p/goprotobuf/proto"
 	"github.com/idada/v8.go"
@@ -24,7 +33,7 @@ func netClientServerMsgHandler(e *Engine) netHandler {
 			return
 		}
 
-		evt := NewGeneralEvent(msg.GetName(), msg.GetData(), playerIdInt)
+		evt := e.NewNetEvent(msg.GetName(), msg.GetData(), playerIdInt)
 		e.EmitEvent(evt)
 	}
 }

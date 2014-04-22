@@ -8,10 +8,6 @@
 		"notifications",
 		"player-extensions",
 		"console",
-		"stdBlocks",
-		"stdWgen",
-		"stdChunk",
-		"visiblePlayers",
 		"testaddon"
 	],
 	"debug": true

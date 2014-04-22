@@ -9,7 +9,7 @@ import (
 
 // Sends a message to a player
 func jsUsrMessage(e *Engine) interface{} {
-	return func(name string, data *v8.Value, player *v8.Object) {
+	return func(player *v8.Value, name string, data *v8.Value) {
 
 		if player == nil || data == nil || name == "" {
 			log.Error("Tried calling _sendUsrMessage with invalid arguments")
@@ -17,19 +17,19 @@ func jsUsrMessage(e *Engine) interface{} {
 		}
 		// Get the player id
 		id := 0
-		if player.IsInt32() || player.IsInt32() {
+		if player.IsInt32() || player.IsUint32() {
 			id = int(player.ToInteger())
 		} else if player.IsObject() {
-			id = int(player.GetProperty("id").ToInteger())
+			id = int(player.ToObject().GetProperty("id").ToInteger())
 		} else {
-			e.Log.Error("Unsuported player argument type calling jsUsrMessage")
+			e.Log.Error("Unsuported player argument type calling jsUsrMessage: ", player.String())
 			return
 		}
 
 		RealPlayer, ok := e.Players[int(id)]
 		if !ok {
 			e.Log.Error("No player found for player id ", id)
-			e.Log.Error(string(v8.ToJSON(player.Value)))
+			e.Log.Error(string(v8.ToJSON(player)))
 			return
 		}
 		if !RealPlayer.conn.Open() {
@@ -52,6 +52,7 @@ func jsUsrMessage(e *Engine) interface{} {
 			e.Log.Error("Error sending usermessage: ", err)
 			return
 		}
+		e.Log.Debug("Sent usrmessage of size: ", len(serializedMessage))
 		return
 	}
 }

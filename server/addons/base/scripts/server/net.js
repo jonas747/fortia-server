@@ -9,11 +9,31 @@ Fortia.Net = Fortia.Net || {};
 @param {Player} player - The player that receives the message
 @memberof Net
 **/
-Fortia.Net.sendUsrMessage = function(name, data, player){
+Fortia.Net.sendUsrMessage = function(player, name, data){
 	if(arguments.length < 3){
 		console.error("Not enough arguments to call Fortia.Net.sendUsrMessage()")
 		return
 	}
 	// Need native stuff
-	Fortia._sendUsrMessage(name, data, player);
+	Fortia._sendUsrMessage(player, name, data);
+}
+
+/**
+Emits a network message event
+@function emit
+@param {String} name - The message name we will listen for
+@param {object} data - The message data.
+@memberof Net
+**/ 
+Fortia.Net.emit = function(name, data, sender){
+	if(!Fortia.Net._eventListeners){
+		return
+	}
+	if(!Fortia.Net._eventListeners[name]){
+		return
+	}
+	var dataDecoded = JSON.parse(data);
+	for (var i = 0; i < Fortia.Net._eventListeners[name].length; i++) {
+		Fortia.Net._eventListeners[name][i](dataDecoded, Fortia.getPlayer(sender))			
+	};
 }

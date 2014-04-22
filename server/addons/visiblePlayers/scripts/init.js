@@ -1,7 +1,8 @@
 addClientJsFile("client.js")
 
-Fortia.on("playerjoin", function(player){
-	var players = Fortia.getPlayers()
+Fortia.on("playerjoin", function(pid){
+	var player = Fortia.getPlayer(pid);
+	var players = Fortia.getPlayers();
 	if(!players)
 		console.log("No players returned")
 		console.log(players)
@@ -14,12 +15,12 @@ Fortia.on("playerjoin", function(player){
 	for (var i = 0; i < players.length; i++) {
 		var ply = players[i]
 		if(ply.id !== player.id){ 
-			Fortia.Net.sendUsrMessage("playerjoin", player, ply)
+			Fortia.Net.sendUsrMessage(ply, "playerjoin", player)
 		}
 		newArray.push(ply);
 	};
 	// Send the player that joined all the other players
-	Fortia.Net.sendUsrMessage("otherPlayers", newArray, player)
+	Fortia.Net.sendUsrMessage(player, "otherPlayers", newArray)
 })
 
 Fortia.on("playerleave", function(player){
@@ -30,7 +31,7 @@ Fortia.on("playerleave", function(player){
 	for (var i = 0; i < players.length; i++) {
 		var ply = players[i]
 		if(ply.id !== player.id){ 
-			Fortia.Net.sendUsrMessage("playerleave", player, ply)
+			Fortia.Net.sendUsrMessage(ply, "playerleave", player)
 		}
 	};
 })
@@ -44,7 +45,7 @@ Fortia.on("playermove", function(player){
 	for (var i = 0; i < players.length; i++) {
 		var ply = players[i]
 		if(ply.id !== player.id){ 
-			Fortia.Net.sendUsrMessage("playermove", player, ply)
+			Fortia.Net.sendUsrMessage(ply, "playermove", player)
 		}
 	}
 })

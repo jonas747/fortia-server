@@ -60,6 +60,6 @@ include("shared.js");
 			position: position,
 			blockScale: wgen.blockScale
 		};
-		Fortia.Net.sendUsrMessage("chunk", chunkObj, player)
+		Fortia.Net.sendUsrMessage(player, "chunk", chunkObj)
 	}
 })();

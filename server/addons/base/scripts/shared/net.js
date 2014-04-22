@@ -26,26 +26,3 @@ Fortia.Net.on = function(name, callback){
 
 	Fortia.Net._eventListeners[name].push(callback)
 }
-
-/**
-Emits a network message event
-@function emit
-@param {String} name - The message name we will listen for
-@param {object} data - The message data.
-@memberof Net
-**/ 
-Fortia.Net.emit = function(name, data, sender){
-	if(!Fortia.Net._eventListeners){
-		return
-	}
-	if(!Fortia.Net._eventListeners[name]){
-		return
-	}
-	for (var i = 0; i < Fortia.Net._eventListeners[name].length; i++) {
-		if(_fortiaclient){
-			Fortia.Net._eventListeners[name][i](data)
-		}else{
-			Fortia.Net._eventListeners[name][i](data, sender)			
-		}
-	};
-}

@@ -26,6 +26,6 @@ var Fortia = Fortia || {};
 
 	Fortia.on("playerjoin", function(player){
 		// send this player all the block id's
-		Fortia.Net.sendUsrMessage("blockids", Fortia.blockIds, player);
+		Fortia.Net.sendUsrMessage(player, "blockids", Fortia.blockIds);
 	});
 })();
