@@ -1,11 +1,11 @@
 addClientJsFile("client.js");
 addClientJsFile("shared.js");
-//addClientJsFile("base64.js");
-//addClientJsFile("lz-string.js");
+addClientJsFile("base64.js");
+addClientJsFile("lz-string.js");
 
 include("shared.js");
-//include("base64.js");
-//include("lz-string.js");
+include("base64.js");
+include("lz-string.js");
 
 (function(){
 

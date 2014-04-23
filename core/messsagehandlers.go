@@ -33,7 +33,7 @@ func netClientServerMsgHandler(e *Engine) netHandler {
 			return
 		}
 
-		evt := e.NewNetEvent(msg.GetName(), msg.GetData(), playerIdInt)
+		evt := e.NewNetEvent(msg.GetName(), string(msg.GetData()), playerIdInt)
 		e.EmitEvent(evt)
 	}
 }

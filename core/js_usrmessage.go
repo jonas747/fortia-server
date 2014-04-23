@@ -1,9 +1,7 @@
 package core
 
 import (
-	"bytes"
 	"code.google.com/p/goprotobuf/proto"
-	"compress/zlib"
 	"github.com/idada/v8.go"
 	messages "github.com/jonas747/fortia-messages"
 	"github.com/jonas747/fortia-server/netengine"
@@ -11,8 +9,7 @@ import (
 
 // Sends a message to a player
 func jsUsrMessage(e *Engine) interface{} {
-	return func(player *v8.Value, name string, data *v8.Value, compress bool) {
-
+	return func(player *v8.Value, name string, data *v8.Value) {
 		if player == nil || data == nil || name == "" {
 			log.Error("Tried calling _sendUsrMessage with invalid arguments")
 			return
@@ -42,26 +39,9 @@ func jsUsrMessage(e *Engine) interface{} {
 		serializedData := v8.ToJSON(data)
 
 		msg := new(messages.FortiaMessage)
-		// Compress it
-		if compress {
-			var buffer bytes.Buffer
-			writeCloser := zlib.NewWriter(&buffer)
-			_, err := writeCloser.Write(serializedData)
-			if err != nil {
-				e.Log.Error("Error compressing usermessage data: ", err)
-				return
-			}
-			err = writeCloser.Close()
-			if err != nil {
-				e.Log.Error("Error compressing usermessage data: ", err)
-				return
-			}
-			serializedData = buffer.Bytes()
-			msg.Compress = proto.Bool(true)
-		}
-
 		msg.Name = proto.String(name)
-		msg.Data = proto.String(string(serializedData))
+		msg.Data = serializedData
+
 		serializedMessage, err := netengine.EncodeMessage(msg, int32(messages.MessageTypes_SERVERCLIENTMESSAGE))
 		if err != nil {
 			e.Log.Error("Error serializing message")
