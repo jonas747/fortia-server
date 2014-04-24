@@ -23,7 +23,7 @@ function WorldGen(size, seed, worldHeight, blockScale){
 		for (var x = 0; x < this.size.x; x++) {
 			for (var y = 0; y < this.size.y; y++) {
 				for (var z = 0; z < this.size.z; z++) {
-					// If i dont switch the x and z values i get some issues on the client side, the chunk are rotated 90 dagrees then
+					// If i dont switch the x and z values i get some issues on the client side, the chunk are rotated 90 degrees then
 					// Im not good at math, dunno why it's happening
 					var realPos = new Vector3(z, y, x);
 					realPos = realPos.multiply(this.blockScale);

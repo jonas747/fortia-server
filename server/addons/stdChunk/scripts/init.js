@@ -6,14 +6,15 @@ addClientJsFile("lz-string.js");
 include("shared.js");
 include("base64.js");
 include("lz-string.js");
+include("chunkcache.js");
 
 (function(){
 
 	var oldPlayerPositions = [];
 
+	//						 size 				seed worldheight scale
 	var wgen = new WorldGen(new Vector3(50, 50, 50), 100, 100, 0.1);
-	//var chunk = wgen.genChunk(0, 0, 0);
-	var chunks = {};
+	var chunkCache = new ChunkCache(wgen);
 
 	Fortia.on("playerjoin", function(player){
 		//Fortia.Net.sendUsrMessage("chunk", {chunk: chunk, size: wgen.size}, player)
@@ -22,9 +23,12 @@ include("lz-string.js");
 
 	Fortia.on("playermove", function(pid){
 		var player = Fortia.getPlayer(pid);
+
 		var oldPos = oldPlayerPositions[player.id];
+
 		if(oldPos == undefined)
 			oldPos = new Vector3();
+
 		oldPos = oldPos.clone();
 		oldPlayerPositions[player.id] = new Vector3(player.x, player.y, player.z);
 
@@ -32,8 +36,16 @@ include("lz-string.js");
 		var newChunkPos = wgen.worldToChunk(new Vector3(player.x, player.y, player.z));
 
 		if(newChunkPos.x !== oldChunkPos.x || newChunkPos.y !== oldChunkPos.y || newChunkPos.z !== oldChunkPos.z){
+			var chunk = chunkCache.getChunk(newChunkPos, true);
+			if(chunk === "air"){
+				console.log("Aahhh! not sending air!");
+				return
+			}
 
-			// New chunk
+			sendChunk(chunk, player);
+
+			// New chunk position
+			/*
 			var blockId = newChunkPos.x+"|"+newChunkPos.y+"|"+newChunkPos.z;
 			if(!chunks[blockId]){
 				// Generate a chunk
@@ -54,16 +66,17 @@ include("lz-string.js");
 				return;
 			}
 			sendChunk(chunk, newChunkPos, player);
-
+			*/
 		}
 	});
 
-	function sendChunk(chunk, position, player){
-		//var compressed = compressChunk(chunk)
+	function sendChunk(chunk, player){
+		//var compressed = compressChunk(chunk.getCompressedB64(false));
+		var compressed = chunk.getCompressedB64(true);
 		var chunkObj =  {
-			chunk: chunk, 
+			chunk: compressed, 
 			size: wgen.size,
-			position: position,
+			position: chunk.pos,
 			blockScale: wgen.blockScale
 		};
 		Fortia.Net.sendUsrMessage(player, "chunk", chunkObj, true)

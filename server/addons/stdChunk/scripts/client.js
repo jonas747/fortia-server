@@ -4,7 +4,6 @@ Fortia.Net.on("chunk", function(data){
 	if(!chunkCache[data.position.x+ "|" + data.position.y + "|" + data.position.z]){
 		// Decompress it
 		var decompressed = decompressChunk(data.chunk) 
-
 		var posV3 = new Vector3(data.position.x, data.position.y, data.position.z);
 		var sizeV3 = new Vector3(data.size.x, data.size.y, data.size.z);
 

@@ -6,6 +6,7 @@ addClientJsFile("shared/net.js");
 addClientJsFile("shared/block.js");
 addClientJsFile("shared/player.js");
 addClientJsFile("shared/vector.js");
+addClientJsFile("shared/getSource.js");
 
 // Client only
 addClientJsFile("client/block.js");
