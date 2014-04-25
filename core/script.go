@@ -14,10 +14,11 @@ const (
 )
 
 type Script struct {
-	Source   []byte
-	Path     string
-	Type     ScriptType
-	V8Script *v8.Script
+	Source     []byte
+	Path       string
+	Type       ScriptType
+	V8Script   *v8.Script
+	ShouldExec bool
 }
 
 func LoadScript(path string, kind ScriptType) (*Script, error) {

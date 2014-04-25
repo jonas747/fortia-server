@@ -1,1 +1,1 @@
-addClientJsFile("client.js");
+addClientJsFile("client.js", true);

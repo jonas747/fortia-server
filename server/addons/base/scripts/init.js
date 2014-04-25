@@ -1,18 +1,18 @@
 // Shared
-addClientJsFile("shared/event.js");
-addClientJsFile("shared/basicBlock.js");
-addClientJsFile("shared/entity.js");
-addClientJsFile("shared/net.js");
-addClientJsFile("shared/block.js");
-addClientJsFile("shared/player.js");
-addClientJsFile("shared/vector.js");
-addClientJsFile("shared/getSource.js");
+addClientJsFile("shared/event.js", true);
+addClientJsFile("shared/basicBlock.js", true);
+addClientJsFile("shared/entity.js", true);
+addClientJsFile("shared/net.js", true);
+addClientJsFile("shared/block.js", true);
+addClientJsFile("shared/player.js", true);
+addClientJsFile("shared/vector.js", true);
 
 // Client only
-addClientJsFile("client/block.js");
-addClientJsFile("client/blockmodel.js");
-addClientJsFile("client/net.js");
-addClientJsFile("client/playerid.js");
+addClientJsFile("client/block.js", true);
+addClientJsFile("client/blockmodel.js", true);
+addClientJsFile("client/net.js", true);
+addClientJsFile("client/playerid.js", true);
+addClientJsFile("client/getSource.js", true);
 
 // Server scripts
 

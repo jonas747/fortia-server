@@ -74,9 +74,10 @@ func netGetClResources(e *Engine) netHandler {
 		appendResourceScript := func(dest []*messages.Resource, script *Script) []*messages.Resource {
 			res := new(messages.Resource)
 			res.Name = proto.String(script.Path)
-			test := messages.ResourceType_RType_Script
-			res.Type = &test
+			kind := messages.ResourceType_RType_Script
+			res.Type = &kind
 			res.Script = proto.String(string(script.Source))
+			res.ShouldExecSCript = proto.Bool(script.ShouldExec)
 			dest = append(dest, res)
 			return dest
 		}

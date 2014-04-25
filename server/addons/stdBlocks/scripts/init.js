@@ -1,2 +1,2 @@
-addClientJsFile("shared.js");
+addClientJsFile("shared.js", true);
 include("shared.js");

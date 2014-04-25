@@ -1,12 +1,13 @@
 include("simplexnoise.js")
 
 function WorldGen(size, seed, worldHeight, blockScale){
-	this.size = size || new Vector3(100, 100, 100);
-	this.seed = seed || Math.random()*new Date().getMilliseconds();
+	this.size = size || new Vector3(50, 50, 50);
+	var now = new Date();
+	this.seed = seed || now.getMilliseconds()*Date.now()*Math.random(); // Cheesy, i know
 	this.worldHeight = worldHeight || 100;
 	this.blockScale = blockScale || 1;
 
-	this.smoothNess = 0.1;
+	this.smoothNess = 0.01;
 
 	this.noiseGen = new SimplexNoise();
 
@@ -32,7 +33,12 @@ function WorldGen(size, seed, worldHeight, blockScale){
 					var noise = this.noiseGen.noise3d(noisePos.x, noisePos.y, noisePos.z);
 					var life = 1 - 2*(worldPos.y/this.worldHeight)
 					life += noise;
-					if(life > 0){
+					//life += 0.1;
+					if(life > 0 && life < 0.1){
+						generatedBlock = true;
+						var btype = Math.floor(Math.random()*4)
+						blocks.push(Fortia.blockIds["grass"+btype]);
+					}else if(life >= 0.1){
 						var btype = Math.floor(Math.random()*4)
 						blocks.push(Fortia.blockIds["rock"+btype]);
 						generatedBlock = true;

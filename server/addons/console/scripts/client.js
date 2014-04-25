@@ -11,15 +11,10 @@
 	var newDiv = document.createElement("div"); 
 	newDiv.style.top = "150px";
 	newDiv.style.position = "fixed";
-	var lines = []
-	lines.push(paragraph(""));
-	lines.push(paragraph("")); 
-	lines.push(paragraph("")); 
-	lines.push(paragraph("")); 
-	lines.push(paragraph("")); 
-	lines.push(paragraph("")); 
 
-	for (var i = 0; i < lines.length; i++) {
+	var lines = []
+	for (var i = 0; i < 15; i++) {
+		lines.push(paragraph("")); 
 		newDiv.appendChild(lines[i]);
 	};
 

@@ -1,0 +1,7 @@
+{
+	"name": "Shows your ping",
+	"version": "0.1",
+	"type": "utility",
+	"author": "jonas747",
+	"license": "bsd"
+}

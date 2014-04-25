@@ -16,7 +16,6 @@ var Fortia = Fortia || {};
 	}
 	
 	Fortia.Net.on("blockids", function(ids){
-		// send this player all the block id's
 		console.log("Block id's", ids)
 		Fortia.blockIds = ids;
 		for (var key in ids) {
@@ -25,5 +24,10 @@ var Fortia = Fortia || {};
 				Fortia.blockIdToColors[val] = Fortia.blockColors[key]	
 			}
 		}
+		// Send the colors to the blockmodel worker
+		FortiaEngine.blkWorker.postMessage({
+			name: "colors",
+			colors: Fortia.blockIdToColors
+		});
 	});
 })();

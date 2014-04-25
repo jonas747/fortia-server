@@ -1,19 +1,21 @@
-addClientJsFile("client.js")
+addClientJsFile("client.js", true)
 
 Fortia.on("playerjoin", function(pid){
 	var player = Fortia.getPlayer(pid);
 	var players = Fortia.getPlayers();
-	if(!players)
+	if(!players){
 		console.log("No players returned")
 		console.log(players)
 		return 
+	}
 
-	console.log(players.length)
+	//console.log(players.length)
 
 	var newArray = [];
 	// Send the message that this player joined to everyone except himself
 	for (var i = 0; i < players.length; i++) {
 		var ply = players[i]
+		//console.log(ply.id+"")
 		if(ply.id !== player.id){ 
 			Fortia.Net.sendUsrMessage(ply, "playerjoin", player)
 		}
@@ -23,7 +25,8 @@ Fortia.on("playerjoin", function(pid){
 	Fortia.Net.sendUsrMessage(player, "otherPlayers", newArray)
 })
 
-Fortia.on("playerleave", function(player){
+Fortia.on("playerleave", function(pid){
+	var player = Fortia.getPlayer(pid);
 	var players = Fortia.getPlayers()
 	if(!players)
 		return 
@@ -36,7 +39,8 @@ Fortia.on("playerleave", function(player){
 	};
 })
 
-Fortia.on("playermove", function(player){
+Fortia.on("playermove", function(pid){
+	var player = Fortia.getPlayer(pid);
 	var players = Fortia.getPlayers()
 	if(!players)
 		return 

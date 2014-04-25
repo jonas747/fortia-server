@@ -29,6 +29,5 @@ function compressChunk(chunk){
 function decompressChunk(chunk){
 	var string = LZString.decompressFromBase64(chunk);
 	var obj = JSON.parse(string);
-
 	return obj;
 }

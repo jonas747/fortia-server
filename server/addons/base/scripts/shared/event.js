@@ -1,15 +1,15 @@
 var Fortia = Fortia || {};
-
+Fortia._eventListeners = {};
 Fortia.on = function(evt, callback){
-	Fortia._eventListenvers = Fortia._eventListenvers || {};
-	if(!Fortia._eventListenvers[evt]){
-		Fortia._eventListenvers[evt] = new Array();;
+	Fortia._eventListeners = Fortia._eventListeners || {};
+	if(!Fortia._eventListeners[evt]){
+		Fortia._eventListeners[evt] = new Array();;
 	}
-	Fortia._eventListenvers[evt].push(callback)
+	Fortia._eventListeners[evt].push(callback)
 }
 
 Fortia.emit = function(evt){
-	if(!Fortia._eventListenvers[evt]){
+	if(!Fortia._eventListeners[evt]){
 		return;
 	}
 
@@ -21,7 +21,7 @@ Fortia.emit = function(evt){
 		};
 	}
 
-	for (var i = 0; i < Fortia._eventListenvers[evt].length; i++) {
-		Fortia._eventListenvers[evt][i].apply(Fortia._eventListenvers[evt][i], rest);
+	for (var i = 0; i < Fortia._eventListeners[evt].length; i++) {
+		Fortia._eventListeners[evt][i].apply(Fortia._eventListeners[evt][i], rest);
 	};
 }

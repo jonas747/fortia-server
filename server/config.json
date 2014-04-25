@@ -1,6 +1,6 @@
 {
 	"convars": {
-		"port": "8112",
+		"port": "8093",
 		"hostname": "Wild test server"
 	},
 	"addons": [
@@ -11,7 +11,9 @@
 		"testaddon",
 		"stdWgen",
 		"stdBlocks", 
-		"stdChunk"
+		"stdChunk",
+		"visiblePlayers",
+		"ping"
 	],
 	"debug": true
 }

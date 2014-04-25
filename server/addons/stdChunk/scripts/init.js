@@ -1,7 +1,7 @@
-addClientJsFile("client.js");
-addClientJsFile("shared.js");
-addClientJsFile("base64.js");
-addClientJsFile("lz-string.js");
+addClientJsFile("client.js", true);
+addClientJsFile("shared.js", true);
+addClientJsFile("base64.js", true);
+addClientJsFile("lz-string.js", true);
 
 include("shared.js");
 include("base64.js");
@@ -13,7 +13,7 @@ include("chunkcache.js");
 	var oldPlayerPositions = [];
 
 	//						 size 				seed worldheight scale
-	var wgen = new WorldGen(new Vector3(50, 50, 50), 100, 100, 0.1);
+	var wgen = new WorldGen(new Vector3(50, 50, 50), 123123, 100, 1);
 	var chunkCache = new ChunkCache(wgen);
 
 	Fortia.on("playerjoin", function(player){
@@ -35,50 +35,31 @@ include("chunkcache.js");
 		var oldChunkPos = wgen.worldToChunk(oldPos);
 		var newChunkPos = wgen.worldToChunk(new Vector3(player.x, player.y, player.z));
 
-		if(newChunkPos.x !== oldChunkPos.x || newChunkPos.y !== oldChunkPos.y || newChunkPos.z !== oldChunkPos.z){
-			var chunk = chunkCache.getChunk(newChunkPos, true);
-			if(chunk === "air"){
-				console.log("Aahhh! not sending air!");
-				return
-			}
-
-			sendChunk(chunk, player);
-
-			// New chunk position
-			/*
-			var blockId = newChunkPos.x+"|"+newChunkPos.y+"|"+newChunkPos.z;
-			if(!chunks[blockId]){
-				// Generate a chunk
-				console.log("Generating a chunk")
-				var startTime = new Date().getTime();
-				var chunk = wgen.genChunk(newChunkPos.x, newChunkPos.y, newChunkPos.z);
-				var diff = new Date().getTime() - startTime;
-				var blocksPerSecond = Math.round(((wgen.size.x*wgen.size.y*wgen.size.z)/diff)*1000)
-				console.log("done generating a chunk, size: "+chunk.length+ " Time spent: "+diff+" Blocks per second: "+blocksPerSecond);
-				if(chunk.length < 1){
-					//Empty chunk..
-					chunks[blockId] = [];
+		if(newChunkPos.x !== oldChunkPos.x || newChunkPos.y !== oldChunkPos.y || newChunkPos.z !== oldChunkPos.z){		
+			nearbyChunks = chunkCache.getNearbyChunks(newChunkPos, new Vector3(2, 2, 2), true);
+			for (var i = 0; i < nearbyChunks.length; i++) {
+				if(nearbyChunks[i] !== "air" && nearbyChunks[i] !== undefined){
+					sendChunk(nearbyChunks[i], player)
 				}
-				chunks[blockId] = chunk;
-			}
-			var chunk = chunks[blockId];
-			if(chunk.length < 1){
-				return;
-			}
-			sendChunk(chunk, newChunkPos, player);
-			*/
+			};
 		}
+	});
+
+	Fortia.on("loaded", function(){
+		// Quick spawn gen when server is starting
+		chunkCache.getNearbyChunks(new Vector3(0, 0, 0), new Vector3(2, 2, 2), true)
 	});
 
 	function sendChunk(chunk, player){
 		//var compressed = compressChunk(chunk.getCompressedB64(false));
-		var compressed = chunk.getCompressedB64(true);
+		var compressed = chunk.getCompressedB64(true, chunkCache);
 		var chunkObj =  {
 			chunk: compressed, 
 			size: wgen.size,
 			position: chunk.pos,
 			blockScale: wgen.blockScale
 		};
-		Fortia.Net.sendUsrMessage(player, "chunk", chunkObj, true)
+		console.log("Sending normal compressed chun");
+		Fortia.Net.sendUsrMessage(player, "chunk", chunkObj);
 	}
 })();
