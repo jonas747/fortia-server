@@ -92,7 +92,7 @@ ChunkCache.prototype.genChunk = function(pos){
 	console.log("Generated a chunk")
 }
 
-// Gets a raw chunk, load it into memory if we have to, if generate is true it will generate the chunk if it does not exist
+// Gets a chunk, load it into memory if we have to, if generate is true it will generate the chunk if it does not exist
 ChunkCache.prototype.getChunk = function(pos, generate){
 	if(this.chunkIsInMemory(pos)){
 		return this.chunks[ChunkCache.getChunkId(pos)];
@@ -179,7 +179,7 @@ Chunk.prototype.setBlock = function(pos, block){
 
 }
 
-// Gets only blocks that are visible (plus the chunk edges...)
+// Gets only blocks that are visible
 Chunk.prototype.getOuterBlocks = function(chunkCache){
 	processedArr = new Array();
 	var num = 0;

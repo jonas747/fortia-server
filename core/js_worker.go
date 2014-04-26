@@ -1,88 +1,106 @@
+/*
+Simple webworker implmentation, very lackluster
+
+This is a very somplified version of webworkers in that it does not support
+nested workers, and it does not use structured cloning (using json for now, not top priority)
+
+*/
+
 package core
 
-/*
 import (
-	"github.com/robertkrimen/otto"
-	"io/ioutil"
+	"github.com/idada/v8.go"
 )
 
-func jsWorker(a *AddonManager) func(otto.FunctionCall) otto.Value {
-	return func(call otto.FunctionCall) otto.Value {
-		args := call.ArgumentList
-		if len(args) < 2 {
-			a.Log.Error("Not enough arguments to call go")
-			return otto.NullValue()
+type worker struct {
+	engine  *v8.Engine
+	context *v8.Context
+}
+
+func jsWorker(e *Engine) interface{} {
+	return func(workerPath string) int {
+		id := <-e.workerIdChan
+
+		instance := v8.NewEngine()
+		instance.AddMessageListener(func(msg *v8.Message) {
+			e.Log.Errorf("%s:%d:%d: %s", msg.ScriptResourceName, msg.Line, msg.StartColumn, msg.Message)
+		})
+
+		globalTemplate := instance.NewObjectTemplate()
+
+		globalTemplate.Bind("include", jsInclude(e, false))
+
+		ctx := instance.NewContext(globalTemplate)
+
+		ctx.Scope(func(cs v8.ContextScope) {
+			global := cs.Global()
+
+			// Self template
+			selfObjTmpl := instance.NewObjectTemplate()
+			selfObjTmpl.Bind("postMessage", jsPostMessageFromWorker(e, id))
+
+			selfObj := instance.MakeObject(selfObjTmpl)
+			global.SetProperty("self", selfObj, v8.PA_None)
+
+			// console
+			consoleTemplate := instance.NewObjectTemplate()
+			jsLogApi(consoleTemplate)
+			consoleObj := instance.MakeObject(consoleTemplate)
+
+			global.SetProperty("console", consoleObj, v8.PA_None)
+		})
+
+		// Load and exec script
+		script, err := LoadScript(workerPath, SCRIPT_SERVER)
+		if err != nil {
+			e.Log.Error("Error spawning worker: ", err)
+			return 0
+		}
+		script.Compile(instance)
+
+		w := worker{
+			instance,
+			ctx,
 		}
 
-		filepaths := args[0].Object()
-		callback := args[1]
-		go func() {
-			vm := otto.New()
+		e.workers[id] = w
 
-			console, err := vm.Get("console")
-			if err != nil {
-				a.Log.Error("Error getting console")
-			}
+		go script.Run(ctx)
 
-			cobj := console.Object()
-			cobj.Set("log", jsLog(a))
-			cobj.Set("debug", jsDebug(a))
-			cobj.Set("error", jsErr(a))
-
-			keys := filepaths.Keys()
-
-			var val otto.Value // The returning value
-			for i := 0; i < len(keys); i++ {
-				key := keys[i]
-
-				path, err := filepaths.Get(key)
-				if err != nil {
-					a.Log.Error("Error running worker: ", err)
-					break
-				}
-
-				file, err := ioutil.ReadFile(path.String())
-				if err != nil {
-					a.Log.Error("Error running worker: ", path.String(), err)
-					continue
-				}
-				val, err = vm.Run(file)
-				if err != nil {
-					a.Log.Error("Error running worker: ", path.String(), err)
-					continue
-				}
-			}
-
-			evt := CustomEvent{
-				callback,
-				[]otto.Value{val},
-			}
-			a.ScriptCutomEventChan <- evt
-		}()
-		return otto.TrueValue()
+		return id
 	}
 }
 
-// Broken with current otto
-func jsImport(a *AddonManager, vm *otto.Otto) func(otto.FunctionCall) otto.Value {
-	return func(call otto.FunctionCall) otto.Value {
-		args := call.ArgumentList
+func jsPostMessageFromWorker(e *Engine, id int) interface{} {
+	return func(data *v8.Value) {
+		str := string(v8.ToJSON(data))
+		go e.JsContext.Scope(func(cs v8.ContextScope) {
+			fortiaVal := cs.Global().GetProperty("Fortia")
+			fortiaObj := fortiaVal.ToObject()
+			msgVal := fortiaObj.GetProperty("_onWorkerMsg")
+			msgFunc := msgVal.ToFunction()
 
-		for i := 0; i < len(args); i++ {
-			arg := args[i]
-			filename := arg.String()
-			file, err := ioutil.ReadFile(filename)
-			if err != nil {
-				a.Log.Error("Error importing script", filename, err)
-				continue
-			}
-			_, err = call.Otto.Run(file)
-			if err != nil {
-				a.Log.Error("Error importing script", filename, err)
-				continue
-			}
-		}
-		return otto.TrueValue()
+			msgFunc.Call(e.ToJsValue(id, cs), cs.ParseJSON(str))
+		})
 	}
 }
-*/
+
+func jsPostMessage(e *Engine) interface{} {
+	return func(id int, msg *v8.Value) {
+		work, found := e.workers[id]
+		if !found {
+			e.Log.Error("Tried to call postMessage on invalid worker")
+			return
+		}
+		str := string(v8.ToJSON(msg))
+		go work.context.Scope(func(cs v8.ContextScope) {
+			selfObj := cs.Global().GetProperty("self")
+			callback := selfObj.ToObject().GetProperty("onmessage")
+			if callback.IsFunction() {
+
+				cfunc := callback.ToFunction()
+				cfunc.Call(cs.ParseJSON(str))
+			}
+		})
+	}
+}

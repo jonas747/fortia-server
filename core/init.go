@@ -28,7 +28,7 @@ func (e *Engine) AddJsExtensions() {
 	})
 	globalTemplate := e.JsEngine.NewObjectTemplate()
 
-	globalTemplate.Bind("include", jsInclude(e))
+	globalTemplate.Bind("include", jsInclude(e, true))
 	globalTemplate.Bind("addClientJsFile", jsAddClientJsFile(e))
 
 	ctx := e.JsEngine.NewContext(globalTemplate)
@@ -41,6 +41,8 @@ func (e *Engine) AddJsExtensions() {
 
 		fortiaTemplate.Bind("_getPlayers", jsGetPlayers(e))
 		fortiaTemplate.Bind("_sendUsrMessage", jsUsrMessage(e))
+		fortiaTemplate.Bind("_postWorkerMessage", jsPostMessage(e))
+		fortiaTemplate.Bind("_newWorker", jsWorker(e))
 
 		jsFileApi(fortiaTemplate)
 

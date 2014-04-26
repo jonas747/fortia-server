@@ -41,7 +41,7 @@ func netClientServerMsgHandler(e *Engine) netHandler {
 func netHelloHandler(e *Engine) netHandler {
 	return func(msg messages.Hello, conn netengine.Connection) []byte {
 		// Assign id, create e player instance and add it to addons.Players, send response
-		id := <-e.idChan
+		id := <-e.plyIdChan
 		conn.GetSessionData().Set("id", id)
 
 		player := Player{

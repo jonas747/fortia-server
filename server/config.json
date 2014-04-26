@@ -15,5 +15,10 @@
 		"visiblePlayers",
 		"ping"
 	],
+	"_addons": [
+		"base",
+		"notifications",
+		"testaddon"
+	],
 	"debug": true
 }

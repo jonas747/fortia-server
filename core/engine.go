@@ -20,9 +20,11 @@ type Engine struct {
 	PlayersLock *sync.Mutex
 	BlockTypes  []BlockType
 
+	workers          map[int]worker
 	currentlyLoading *Addon
 
-	idChan chan int
+	plyIdChan    chan int
+	workerIdChan chan int
 }
 
 func NewEngine(logger *logrus.Logger) *Engine {
@@ -35,6 +37,7 @@ func NewEngine(logger *logrus.Logger) *Engine {
 		Players:     make(map[int]*Player),
 		PlayersLock: new(sync.Mutex),
 		BlockTypes:  make([]BlockType, 0),
+		workers:     make(map[int]worker),
 	}
 	return e
 }
@@ -58,10 +61,16 @@ func (e *Engine) Start(listenAddr string, addons []string, folder string) {
 	go net.AddListener(&listener)
 
 	e.Log.Debug("Running player id generation goroutine")
+
 	// The player id channel
-	idChan := make(chan int)
-	idGen(idChan)
-	e.idChan = idChan
+	plyIdChan := make(chan int)
+	idGen(plyIdChan)
+	e.plyIdChan = plyIdChan
+
+	// Worker id channel
+	workerIdChan := make(chan int)
+	idGen(workerIdChan)
+	e.workerIdChan = workerIdChan
 
 	e.Log.Debug("Adding javascript extensions")
 	// Adds the javascript extensions, sets e.JsContext
