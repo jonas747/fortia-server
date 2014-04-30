@@ -52,6 +52,14 @@ func jsWorker(e *Engine) interface{} {
 			consoleObj := instance.MakeObject(consoleTemplate)
 
 			global.SetProperty("console", consoleObj, v8.PA_None)
+
+			fortiaTemplate := e.JsEngine.NewObjectTemplate()
+
+			jsFileApi(fortiaTemplate)
+
+			fortiaObj := e.JsEngine.MakeObject(fortiaTemplate)
+			global.SetProperty("Fortia", fortiaObj, v8.PA_None)
+
 		})
 
 		// Load and exec script
