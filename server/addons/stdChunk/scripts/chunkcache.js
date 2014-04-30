@@ -52,9 +52,9 @@ ChunkCache.prototype.chunkIsInMemory = function(pos){
 }
 
 ChunkCache.prototype.chunkIsOnDisk = function(pos){
-	if(Fortia.fileExists(this.chunkDir + ChunkCache.getFileString(pos))){
-		return true
-	}
+	//if(Fortia.fileExists(this.chunkDir + ChunkCache.getFileString(pos))){
+	//	return true
+	//}
 	return false;
 }
 

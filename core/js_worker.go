@@ -28,9 +28,13 @@ func jsWorker(e *Engine) interface{} {
 
 		globalTemplate := instance.NewObjectTemplate()
 
-		globalTemplate.Bind("include", jsInclude(e, false))
+		pair := new(jsIncludePair)
 
+		globalTemplate.Bind("include", jsInclude(e, false, pair))
 		ctx := instance.NewContext(globalTemplate)
+
+		pair.ctx = ctx
+		pair.engine = instance
 
 		ctx.Scope(func(cs v8.ContextScope) {
 			global := cs.Global()

@@ -6,15 +6,30 @@ addClientJsFile("lz-string.js", true);
 include("shared.js");
 include("base64.js");
 include("lz-string.js");
-include("chunkcache.js");
 
-(function(){
+Fortia.on("loaded", function(){
 
 	var oldPlayerPositions = [];
 
-	//						 size 				seed worldheight scale
-	var wgen = new WorldGen(new Vector3(50, 50, 50), 123123, 100, 1);
-	var chunkCache = new ChunkCache(wgen);
+	var chunkSize = new Vector3(50, 50, 50);
+	var blockScale = 1;
+
+	var chunkWorker = new Worker("addons/stdChunk/scripts/chunkworker.js");
+	chunkWorker.onmessage = function(data){
+		if(data.name === "getResponse"){
+			var player = Fortia.getPlayer(data.pid);
+			sendChunk(player, data.chunk, chunkSize, data.position, blockScale);
+		}
+	}
+
+	chunkWorker.postMessage({
+		name: "init",
+		size: chunkSize,
+		seed: 322,
+		worldHeight: 100,
+		scale: blockScale,
+		blockIds: Fortia.blockIds
+	});
 
 	Fortia.on("playerjoin", function(player){
 		//Fortia.Net.sendUsrMessage("chunk", {chunk: chunk, size: wgen.size}, player)
@@ -32,34 +47,32 @@ include("chunkcache.js");
 		oldPos = oldPos.clone();
 		oldPlayerPositions[player.id] = new Vector3(player.x, player.y, player.z);
 
-		var oldChunkPos = wgen.worldToChunk(oldPos);
-		var newChunkPos = wgen.worldToChunk(new Vector3(player.x, player.y, player.z));
+		var oldChunkPos = worldToChunk(oldPos, chunkSize, blockScale);
+		var newChunkPos = worldToChunk(new Vector3(player.x, player.y, player.z), chunkSize, blockScale);
 
-		if(newChunkPos.x !== oldChunkPos.x || newChunkPos.y !== oldChunkPos.y || newChunkPos.z !== oldChunkPos.z){		
-			nearbyChunks = chunkCache.getNearbyChunks(newChunkPos, new Vector3(2, 2, 2), true);
-			for (var i = 0; i < nearbyChunks.length; i++) {
-				if(nearbyChunks[i] !== "air" && nearbyChunks[i] !== undefined){
-					sendChunk(nearbyChunks[i], player)
-				}
-			};
+		if(newChunkPos.x !== oldChunkPos.x || newChunkPos.y !== oldChunkPos.y || newChunkPos.z !== oldChunkPos.z){
+			chunkWorker.postMessage({
+				name: "getNearby",
+				shouldGen: true,
+				pos: newChunkPos,
+				radius: new Vector3(2, 2, 2),
+				pid: pid
+			});
 		}
 	});
 
 	Fortia.on("loaded", function(){
 		// Quick spawn gen when server is starting
-		chunkCache.getNearbyChunks(new Vector3(0, 0, 0), new Vector3(2, 2, 2), true)
+		//chunkCache.getNearbyChunks(new Vector3(0, 0, 0), new Vector3(2, 2, 2), true)
 	});
 
-	function sendChunk(chunk, player){
-		//var compressed = compressChunk(chunk.getCompressedB64(false));
-		var compressed = chunk.getCompressedB64(true, chunkCache);
+	function sendChunk(player, chunk, size, position, scale){
 		var chunkObj =  {
-			chunk: compressed, 
-			size: wgen.size,
-			position: chunk.pos,
-			blockScale: wgen.blockScale
+			chunk: chunk, 
+			size: size,
+			position: position,
+			blockScale: scale
 		};
-		console.log("Sending normal compressed chun");
 		Fortia.Net.sendUsrMessage(player, "chunk", chunkObj);
-	}
-})();
+	}	
+})

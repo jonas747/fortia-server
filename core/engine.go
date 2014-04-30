@@ -46,6 +46,9 @@ func NewEngine(logger *logrus.Logger) *Engine {
 // TODO: Be able to stop player id generation
 func (e *Engine) Start(listenAddr string, addons []string, folder string) {
 
+	// Listen for signals
+	go e.ListenForSignal()
+
 	// Initialize and start the networking engine
 	e.Log.Debug("Initializing networking engine")
 	net := netengine.NewEngine()

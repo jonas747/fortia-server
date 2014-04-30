@@ -21,6 +21,7 @@ It's in very early stages so dont expect anything, and the code is probably very
 	- Networking and regular events
 	- Console.log console.error console.debug works
 	- basic fileapi: Fortia.fileRead fileWrite fileExists fileCreateDir
+	- basic webworkers (no structured cloning, no nested workers)
 
 - Network:
 	- Clients can connect

@@ -64,3 +64,4 @@ function WorldGen(size, seed, worldHeight, blockScale){
 
 	return this;
 }
+

@@ -28,10 +28,14 @@ func (e *Engine) AddJsExtensions() {
 	})
 	globalTemplate := e.JsEngine.NewObjectTemplate()
 
-	globalTemplate.Bind("include", jsInclude(e, true))
+	var pair = new(jsIncludePair)
+	globalTemplate.Bind("include", jsInclude(e, true, pair))
 	globalTemplate.Bind("addClientJsFile", jsAddClientJsFile(e))
 
 	ctx := e.JsEngine.NewContext(globalTemplate)
+
+	pair.ctx = ctx
+	pair.engine = e.JsEngine
 
 	ctx.Scope(func(cs v8.ContextScope) {
 		global := cs.Global()

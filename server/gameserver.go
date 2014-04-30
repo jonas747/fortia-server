@@ -32,6 +32,7 @@ func LoadConfig() {
 }
 
 func main() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	log = logrus.New()
 	// Set appropiate loglevel
 	log.Level = logrus.Info
