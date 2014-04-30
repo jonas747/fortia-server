@@ -53,11 +53,11 @@ func jsWorker(e *Engine) interface{} {
 
 			global.SetProperty("console", consoleObj, v8.PA_None)
 
-			fortiaTemplate := e.JsEngine.NewObjectTemplate()
+			fortiaTemplate := instance.NewObjectTemplate()
 
 			jsFileApi(fortiaTemplate)
 
-			fortiaObj := e.JsEngine.MakeObject(fortiaTemplate)
+			fortiaObj := instance.MakeObject(fortiaTemplate)
 			global.SetProperty("Fortia", fortiaObj, v8.PA_None)
 
 		})
