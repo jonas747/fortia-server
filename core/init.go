@@ -2,7 +2,7 @@ package core
 
 import (
 	v8 "github.com/idada/v8.go"
-	messages "github.com/jonas747/fortia-messages"
+	"github.com/jonas747/fortia-server/messages"
 	"github.com/jonas747/fortia-server/netengine"
 )
 

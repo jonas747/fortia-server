@@ -3,7 +3,7 @@ package core
 import (
 	"code.google.com/p/goprotobuf/proto"
 	"github.com/idada/v8.go"
-	messages "github.com/jonas747/fortia-messages"
+	"github.com/jonas747/fortia-server/messages"
 	"github.com/jonas747/fortia-server/netengine"
 )
 
